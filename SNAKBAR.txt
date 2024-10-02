@@ -1,0 +1,55 @@
+SNAKBAR
+
+
+
+XML
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/button_show_snackbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Snackbar"
+        android:layout_centerInParent="true"/>
+</RelativeLayout>
+
+
+
+
+
+
+
+JAVA
+
+
+package com.example.simple_tost;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+
+import com.example.simple_tost.R;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Button showSnackbarButton = findViewById(R.id.button_show_snackbar);
+
+        showSnackbarButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Show a simple Snackbar
+                Snackbar.make(v, "This is a simple Snackbar", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+    }
+}

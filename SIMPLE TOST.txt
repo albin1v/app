@@ -1,0 +1,56 @@
+SIMPLE TOST
+
+
+xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/button_show_toast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Toast"
+        android:layout_centerInParent="true"/>
+</RelativeLayout>
+
+
+
+
+
+java
+
+package com.example.simple_tost;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.simple_tost.R;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Find the button by its ID
+        Button showToastButton = findViewById(R.id.button_show_toast);
+
+        // Set an OnClickListener on the button to show a toast when clicked
+        showToastButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Show a simple toast message
+                Toast.makeText(MainActivity.this, "Hello! This is a Toast message.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+}
+
