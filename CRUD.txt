@@ -1,0 +1,269 @@
+CRUD
+
+
+ACTIVITY_MAIN.XML
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
+    <EditText
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Name"
+        android:inputType="text"
+        android:layout_marginBottom="16dp" />
+    <EditText
+        android:id="@+id/mobile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Mobile"
+        android:inputType="text"
+        android:layout_marginBottom="16dp" />
+    <EditText
+        android:id="@+id/idtxt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Student ID"
+        android:inputType="number" />
+    <Button
+        android:id="@+id/updateButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update" />
+    <Button
+        android:id="@+id/deleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete" />
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add" />
+    <Button
+        android:id="@+id/show"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="show" />
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>
+
+
+
+
+
+MAIN_ACIVITY.JAVA
+
+
+
+package com.example.crud;
+
+import android.content.ContentValues;
+import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import android.content.SharedPreferences;
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+
+import android.database.Cursor;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_main);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+        EditText nametxt = findViewById(R.id.name);
+        EditText mobiletxt = findViewById(R.id.mobile);
+
+
+        EditText idTxt = findViewById(R.id.idtxt);
+        Button updateButton = findViewById(R.id.updateButton);
+        Button deleteButton = findViewById(R.id.deleteButton);
+        Button button1 = findViewById(R.id.button1);
+        Button show=findViewById(R.id.show);
+        ListView listView = findViewById(R.id.listView);
+        OpenDBHelper dbHelper= new OpenDBHelper(getApplicationContext());
+        SQLiteDatabase db=dbHelper.getWritableDatabase();
+//3        SharedPreferences pref = getSharedPreferences("MyPrefs",MODE_PRIVATE);
+//2        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+        button1.setOnClickListener(view -> {
+            String name = nametxt.getText().toString();
+            String mobile = mobiletxt.getText().toString();
+//4            db.execSQL("INSERT INTO "+ dbHelper.tblname+"(std_name,std_mobile) VALUES("+name+", "+mobile+")");
+            ContentValues cv=new ContentValues();
+            cv.put("std_name",name);
+            cv.put("std_mobile",mobile);
+            if(db.insert("tbl_students",null,cv)>0){
+                Snackbar.make(view, "Data Inserted", BaseTransientBottomBar.LENGTH_LONG).show();
+            }
+            else {
+                Snackbar.make(view, "Data Failed", BaseTransientBottomBar.LENGTH_LONG).show();
+            }
+
+//3            SharedPreferences.Editor editor= pref.edit();
+//3            editor.putString("SavedText",name);
+//3            editor.apply();
+//3            startActivity(new Intent(MainActivity.this, SecondActivity.class));
+//1            Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+//1            intent.putExtra("txt", txt);
+//1            startActivity(intent);
+//1            finish();
+
+
+
+
+        });
+        // Update record
+        updateButton.setOnClickListener(view -> {
+            String idStr = idTxt.getText().toString();
+            String newName = nametxt.getText().toString();
+            String newMobile = mobiletxt.getText().toString();
+
+            if (idStr.isEmpty() || newName.isEmpty() || newMobile.isEmpty()) {
+                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int id = Integer.parseInt(idStr);
+            int rowsAffected = dbHelper.updateStudent(id, newName, newMobile);
+
+            if (rowsAffected > 0) {
+                Toast.makeText(this, "Record updated", Toast.LENGTH_SHORT).show();
+                // Optionally refresh the ListView here
+            } else {
+                Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Delete record
+        deleteButton.setOnClickListener(view -> {
+            String idStr = idTxt.getText().toString();
+
+            if (idStr.isEmpty()) {
+                Toast.makeText(this, "Please enter an ID", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int id = Integer.parseInt(idStr);
+            int rowsAffected = dbHelper.deleteStudent(id);
+
+            if (rowsAffected > 0) {
+                Toast.makeText(this, "Record deleted", Toast.LENGTH_SHORT).show();
+                // Optionally refresh the ListView here
+            } else {
+                Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show();
+            }
+        });
+        show.setOnClickListener(v -> {
+            // Fetching all records from the database
+            Cursor cursor = dbHelper.getAllStudents();
+            ArrayList<String> studentsList = new ArrayList<>();
+
+            // Check if there are records and add them to the list
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    String student = "ID: " + cursor.getInt(0) + "\nName: " + cursor.getString(1) + "\nMobile: " + cursor.getString(2);
+                    studentsList.add(student);
+                } while (cursor.moveToNext());
+                cursor.close();
+            }
+
+            // Set up ArrayAdapter to display in ListView
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, studentsList);
+            listView.setAdapter(adapter);
+        });
+
+    }
+}
+
+
+
+
+
+
+
+
+OpenDBHelper
+
+
+
+
+
+package com.example.crud;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+import androidx.annotation.Nullable;
+
+public class OpenDBHelper extends SQLiteOpenHelper {
+    public static final int version=1;
+    public static String dbname="Student.db";
+    public static String tblname="tbl_students";
+    public OpenDBHelper(Context context) {
+        super(context, dbname, null, version);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        //when we intall app
+        db.execSQL("Create table IF NOT EXISTS "+tblname+"(std_id INTEGER PRIMARY KEY AUTOINCREMENT,std_name TEXT NOT NULL,std_mobile TEXT )");
+    }
+    public Cursor getAllStudents() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM " + tblname, null);
+    }
+    public int updateStudent(int id, String name, String mobile) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("std_name", name);
+        cv.put("std_mobile", mobile);
+        return db.update(tblname, cv, "std_id = ?", new String[]{String.valueOf(id)});
+    }
+    public int deleteStudent(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete(tblname, "std_id = ?", new String[]{String.valueOf(id)});
+    }
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+        //when we update app
+    }
+}
+
